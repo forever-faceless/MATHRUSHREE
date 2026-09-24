@@ -13,7 +13,7 @@ key landmarks, the managing committee, testimonials, and an enquiry inbox for qu
 | Leads | Enquiry form on every project and site page (site pre-selected). Validates Indian mobile numbers, has a honeypot and rate limit, stores leads in the database. Admin gets one-tap Call / WhatsApp buttons, status tracking, notes and CSV export. |
 | Phone-first | The society phone number is in the header, hero, CTA band, footer, every project/site page and a sticky Call / WhatsApp / Enquire bar on mobile. |
 | Admin | `/admin` — projects (bilingual fields, photos, layout plan, brochure PDF, approvals, amenities), landmarks with a "paste from Google Maps" coordinate helper, sites (single or bulk-generate a numbered run, quick status changes), committee, testimonials, enquiries, society settings. |
-| Storage | SQLite file locally, Turso (libSQL) in production. Images on local disk locally, Cloudinary in production. Both switch by environment variable only. |
+| Storage | SQLite file locally, Turso (libSQL) in production. Images on local disk locally, Vercel Blob or Cloudinary in production. All switch by environment variable only. |
 
 ## Run it locally
 
@@ -43,25 +43,26 @@ See `.env.example`. The important ones:
 | `TURSO_AUTH_TOKEN` | Turso token (production only) |
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Admin login |
 | `AUTH_SECRET` | Long random string that signs the admin session cookie |
-| `UPLOAD_DIR` | Folder for uploaded images when Cloudinary is not configured |
-| `CLOUDINARY_URL` | When set, uploads go to Cloudinary instead of disk |
+| `UPLOAD_DIR` | Folder for uploaded images when neither Blob nor Cloudinary is configured |
+| `BLOB_READ_WRITE_TOKEN` | Injected by Vercel when a Blob store is connected; uploads then go to Vercel Blob |
+| `CLOUDINARY_URL` | When set, uploads go to Cloudinary (takes precedence over Blob) |
 | `NEXT_PUBLIC_SITE_URL` | Public URL, used for the sitemap and Open Graph tags |
 
 ## Deploy for (almost) free
 
-1. **Database — Turso** (free tier, does not sleep)
-   ```bash
-   turso db create mathrushree
-   turso db show mathrushree --url      # → DATABASE_URL
-   turso db tokens create mathrushree   # → TURSO_AUTH_TOKEN
-   ```
-   Migrations in `drizzle/` run automatically on first request. Seed once with
-   `DATABASE_URL=… TURSO_AUTH_TOKEN=… npm run db:seed` (or start with an empty database and add content in the admin).
+1. **Hosting — Vercel** (Hobby plan). Import the repository at vercel.com/new and deploy.
+   Then in the project settings add `ADMIN_USERNAME`, `ADMIN_PASSWORD` and a long random `AUTH_SECRET`.
 
-2. **Images — Cloudinary** (free tier). Copy the "API environment variable" from the dashboard into `CLOUDINARY_URL`.
+2. **Database — Turso** via the Vercel Marketplace (Storage → Turso, free plan). It injects
+   `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` into the project; the app reads both.
+   Migrations in `drizzle/` run automatically on first request. To load the demo content, pull the
+   variables locally (`vercel env pull`) and run `npm run db:seed`, or start empty and add content in the admin.
+   You can also create the database at turso.tech and set `DATABASE_URL` + `TURSO_AUTH_TOKEN` by hand.
 
-3. **Hosting — Vercel** (free Hobby plan). Import the repository, add the environment variables above,
-   set `ADMIN_PASSWORD` and `AUTH_SECRET` to strong values, deploy.
+3. **Images — Vercel Blob** (Storage → Blob, included on Hobby). Connecting a store injects
+   `BLOB_READ_WRITE_TOKEN`; nothing else to configure. Cloudinary works as an alternative via `CLOUDINARY_URL`.
+
+Redeploy once after connecting storage so the new variables are picked up.
 
 Any Node host works too (`npm run build && npm start`); with a persistent disk you can skip Cloudinary and keep `UPLOAD_DIR`.
 

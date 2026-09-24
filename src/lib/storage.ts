@@ -19,11 +19,23 @@ function cloudinaryEnabled(): boolean {
   return Boolean(process.env.CLOUDINARY_URL?.trim());
 }
 
-/** Serverless hosts have no persistent disk, so uploads there must go to Cloudinary. */
+/** Vercel Blob is used when its token is present (set automatically when a Blob store is connected). */
+function blobEnabled(): boolean {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
+}
+
+/** Serverless hosts have no persistent disk, so uploads there must go to Cloudinary or Vercel Blob. */
 function assertStorageConfigured(): void {
-  if (!cloudinaryEnabled() && (process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME)) {
-    throw new UploadError("Image storage is not configured on this host. Add CLOUDINARY_URL to the environment variables and redeploy.");
+  const serverless = process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME;
+  if (serverless && !cloudinaryEnabled() && !blobEnabled()) {
+    throw new UploadError("Image storage is not configured on this host. Connect a Vercel Blob store or add CLOUDINARY_URL, then redeploy.");
   }
+}
+
+async function putBlob(pathname: string, data: Buffer, contentType: string): Promise<string> {
+  const { put } = await import("@vercel/blob");
+  const blob = await put(pathname, data, { access: "public", contentType, addRandomSuffix: false });
+  return blob.url;
 }
 
 async function getCloudinary() {
@@ -76,6 +88,10 @@ export async function saveImage(file: File, folder: string): Promise<string> {
     return result.secure_url;
   }
 
+  if (blobEnabled()) {
+    return putBlob(`mathrushree/${dir}/${id}.webp`, output, "image/webp");
+  }
+
   const target = path.join(uploadDir(), dir);
   await fs.mkdir(target, { recursive: true });
   await fs.writeFile(path.join(target, `${id}.webp`), output);
@@ -104,6 +120,10 @@ export async function saveDocument(file: File, folder: string): Promise<string> 
     return result.secure_url;
   }
 
+  if (blobEnabled()) {
+    return putBlob(`mathrushree/${dir}/${id}.pdf`, data, "application/pdf");
+  }
+
   const target = path.join(uploadDir(), dir);
   await fs.mkdir(target, { recursive: true });
   await fs.writeFile(path.join(target, `${id}.pdf`), data);
@@ -119,6 +139,11 @@ export async function deleteStored(url: string): Promise<void> {
       const abs = path.join(uploadDir(), rel);
       if (!abs.startsWith(uploadDir())) return;
       await fs.rm(abs, { force: true });
+      return;
+    }
+    if (url.includes(".blob.vercel-storage.com") && blobEnabled()) {
+      const { del } = await import("@vercel/blob");
+      await del(url);
       return;
     }
     if (url.includes("res.cloudinary.com") && cloudinaryEnabled()) {
