@@ -1,5 +1,8 @@
 # Mathrushree Housing Co-operative Society — website & admin
 
+Live at **https://mathrushree.vercel.app** (admin at `/admin`). Hosted on Vercel with a Turso database and a
+Vercel Blob store, all in the Mumbai region.
+
 Bilingual (English / ಕನ್ನಡ) website for Mathrushree Housing Co-operative Society Limited, Hassan, with a
 private admin panel for uploading projects (layouts), the sites inside them, GPS locations with distances to
 key landmarks, the managing committee, testimonials, and an enquiry inbox for qualified leads.
