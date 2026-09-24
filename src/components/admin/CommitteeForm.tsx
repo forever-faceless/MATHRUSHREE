@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useActionState } from "react";
 import type { CommitteeMember } from "@/lib/db/schema";
 import type { ActionState } from "@/lib/forms";
+import { ImageInput } from "./ImageInput";
 import { Checkbox, FormStatus, Input, SubmitButton, Textarea } from "./ui";
 
 export function CommitteeForm({ member, action }: { member?: CommitteeMember | null; action: (prev: ActionState, formData: FormData) => Promise<ActionState> }) {
@@ -34,7 +35,7 @@ export function CommitteeForm({ member, action }: { member?: CommitteeMember | n
           <label htmlFor="photo" className="label">
             Photo
           </label>
-          <input id="photo" name="photo" type="file" accept="image/*" className="field file:mr-3 file:rounded-full file:border-0 file:bg-olive-900 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-gold-200" />
+          <ImageInput id="photo" name="photo" />
           <p className="help">Square portrait works best. Initials are shown when there is no photo.</p>
         </div>
       </div>

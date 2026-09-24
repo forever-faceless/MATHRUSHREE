@@ -19,6 +19,13 @@ function cloudinaryEnabled(): boolean {
   return Boolean(process.env.CLOUDINARY_URL?.trim());
 }
 
+/** Serverless hosts have no persistent disk, so uploads there must go to Cloudinary. */
+function assertStorageConfigured(): void {
+  if (!cloudinaryEnabled() && (process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME)) {
+    throw new UploadError("Image storage is not configured on this host. Add CLOUDINARY_URL to the environment variables and redeploy.");
+  }
+}
+
 async function getCloudinary() {
   const { v2 } = await import("cloudinary");
   // The SDK reads CLOUDINARY_URL from the environment automatically.
@@ -37,6 +44,7 @@ export class UploadError extends Error {}
  * Cloudinary (when CLOUDINARY_URL is set) or on local disk. Returns a URL usable in <Image>.
  */
 export async function saveImage(file: File, folder: string): Promise<string> {
+  assertStorageConfigured();
   if (!file || file.size === 0) throw new UploadError("Empty file.");
   if (file.size > MAX_IMAGE_BYTES) throw new UploadError("Image is larger than 15 MB.");
   if (file.type && !IMAGE_TYPES.has(file.type)) throw new UploadError(`Unsupported image type: ${file.type}`);
@@ -76,6 +84,7 @@ export async function saveImage(file: File, folder: string): Promise<string> {
 
 /** Stores a PDF brochure. Local disk or Cloudinary "raw" resource. */
 export async function saveDocument(file: File, folder: string): Promise<string> {
+  assertStorageConfigured();
   if (!file || file.size === 0) throw new UploadError("Empty file.");
   if (file.size > MAX_DOC_BYTES) throw new UploadError("File is larger than 25 MB.");
   if (file.type !== "application/pdf") throw new UploadError("Only PDF brochures are supported.");

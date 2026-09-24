@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import type { Testimonial } from "@/lib/db/schema";
 import type { ActionState } from "@/lib/forms";
+import { ImageInput } from "./ImageInput";
 import { Checkbox, FormStatus, Input, Select, SubmitButton, Textarea } from "./ui";
 
 export function TestimonialForm({ item, projects, action }: { item?: Testimonial | null; projects: { id: number; name: string }[]; action: (prev: ActionState, formData: FormData) => Promise<ActionState> }) {
@@ -32,7 +33,7 @@ export function TestimonialForm({ item, projects, action }: { item?: Testimonial
         <label htmlFor="photo" className="label">
           Photo (optional)
         </label>
-        <input id="photo" name="photo" type="file" accept="image/*" className="field file:mr-3 file:rounded-full file:border-0 file:bg-olive-900 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-gold-200" />
+        <ImageInput id="photo" name="photo" />
       </div>
       <div className="border-t border-olive-900/8 pt-6">
         <SubmitButton variant="gold">{item ? "Save testimonial" : "Add testimonial"}</SubmitButton>

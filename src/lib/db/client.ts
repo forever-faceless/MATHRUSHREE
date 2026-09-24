@@ -11,8 +11,13 @@ type Cache = { client?: Client; db?: Db; ready?: Promise<Db> };
 const globalCache = globalThis as unknown as { __mhcsDb?: Cache };
 const cache: Cache = (globalCache.__mhcsDb ??= {});
 
+/** DATABASE_URL is ours; TURSO_DATABASE_URL is what Vercel's Turso integration injects. */
+export function databaseUrl(): string {
+  return process.env.DATABASE_URL?.trim() || process.env.TURSO_DATABASE_URL?.trim() || "file:./data/local.db";
+}
+
 function resolveUrl(): string {
-  const url = process.env.DATABASE_URL?.trim() || "file:./data/local.db";
+  const url = databaseUrl();
   if (url.startsWith("file:")) {
     // Make sure the folder for a local SQLite file exists before libsql opens it.
     const filePath = url.slice("file:".length);

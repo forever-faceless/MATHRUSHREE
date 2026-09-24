@@ -5,13 +5,13 @@ import { useActionState } from "react";
 import type { Settings } from "@/lib/db/schema";
 import type { ActionState } from "@/lib/forms";
 import { HASSAN_CENTRE } from "@/lib/geo";
+import { ImageInput } from "./ImageInput";
 import { Checkbox, FormStatus, Input, SubmitButton, Textarea } from "./ui";
 import { CoordinateFields } from "./CoordinateFields";
 
 export function SettingsForm({ settings, action }: { settings: Settings; action: (prev: ActionState, formData: FormData) => Promise<ActionState> }) {
   const [state, formAction] = useActionState<ActionState, FormData>(action, undefined);
   const e = state?.fieldErrors ?? {};
-  const fileCls = "field file:mr-3 file:rounded-full file:border-0 file:bg-olive-900 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-gold-200";
   return (
     <form action={formAction} className="space-y-10">
       <FormStatus state={state} />
@@ -69,7 +69,7 @@ export function SettingsForm({ settings, action }: { settings: Settings; action:
               <label htmlFor="heroImage" className="label">
                 Hero background photo
               </label>
-              <input id="heroImage" name="heroImage" type="file" accept="image/*" className={fileCls} />
+              <ImageInput id="heroImage" name="heroImage" />
               <p className="help">A wide photo of a layout or of Hassan works best. It is darkened automatically for legibility.</p>
             </div>
             {settings.heroImage ? <Checkbox label="Remove current hero photo" name="removeHero" /> : null}

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useActionState, useTransition } from "react";
 import type { Project } from "@/lib/db/schema";
 import type { ActionState } from "@/lib/forms";
+import { ImageInput } from "./ImageInput";
 import { FormStatus, SubmitButton } from "./ui";
 
 type Props = {
@@ -26,21 +27,21 @@ export function MediaManager({ project, uploadAction, removeAction, setCoverActi
           <label className="label" htmlFor="coverImage">
             Cover photo
           </label>
-          <input id="coverImage" name="coverImage" type="file" accept="image/*" className="field file:mr-3 file:rounded-full file:border-0 file:bg-olive-900 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-gold-200" />
+          <ImageInput id="coverImage" name="coverImage" />
           <p className="help">Landscape photo, shown on cards and at the top of the project page.</p>
         </div>
         <div>
           <label className="label" htmlFor="gallery">
             Gallery photos (multiple)
           </label>
-          <input id="gallery" name="gallery" type="file" accept="image/*" multiple className="field file:mr-3 file:rounded-full file:border-0 file:bg-olive-900 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-gold-200" />
-          <p className="help">Up to 20 photos at a time. Large photos are resized automatically.</p>
+          <ImageInput id="gallery" name="gallery" multiple maxFiles={10} />
+          <p className="help">Up to 10 photos at a time. Photos are shrunk in your browser before upload, so phone photos are fine.</p>
         </div>
         <div>
           <label className="label" htmlFor="layoutPlanImage">
             Layout plan (image)
           </label>
-          <input id="layoutPlanImage" name="layoutPlanImage" type="file" accept="image/*" className="field file:mr-3 file:rounded-full file:border-0 file:bg-olive-900 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-gold-200" />
+          <ImageInput id="layoutPlanImage" name="layoutPlanImage" />
         </div>
         <div>
           <label className="label" htmlFor="brochure">

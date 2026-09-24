@@ -4,6 +4,7 @@ import { ImagePlus, X } from "lucide-react";
 import Image from "next/image";
 import { useActionState, useTransition } from "react";
 import type { ActionState } from "@/lib/forms";
+import { ImageInput } from "./ImageInput";
 import { FormStatus, SubmitButton } from "./ui";
 
 export function SiteImages({ images, uploadAction, removeAction }: { images: string[]; uploadAction: (prev: ActionState, formData: FormData) => Promise<ActionState>; removeAction: (url: string) => Promise<void> }) {
@@ -17,7 +18,7 @@ export function SiteImages({ images, uploadAction, removeAction }: { images: str
           <label htmlFor="images" className="label">
             Add photos of this site
           </label>
-          <input id="images" name="images" type="file" accept="image/*" multiple className="field file:mr-3 file:rounded-full file:border-0 file:bg-olive-900 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-gold-200" />
+          <ImageInput id="images" name="images" multiple maxFiles={10} />
         </div>
         <SubmitButton>
           <ImagePlus className="h-4 w-4" /> Upload

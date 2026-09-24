@@ -3,6 +3,8 @@ import "@/app/globals.css";
 import { fontClassNames } from "@/lib/fonts";
 
 export const dynamic = "force-dynamic";
+// Image uploads process several photos per request; allow more than the 10 s serverless default.
+export const maxDuration = 60;
 
 export const metadata: Metadata = {
   title: { default: "Society admin", template: "%s · Mathrushree admin" },

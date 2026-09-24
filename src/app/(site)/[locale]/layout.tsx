@@ -7,18 +7,17 @@ import { StickyBar } from "@/components/site/StickyBar";
 import { getSettings } from "@/lib/db/queries";
 import { fontClassNames } from "@/lib/fonts";
 import { getDictionary, isLocale, locales, pick, type Locale } from "@/lib/i18n";
+import { siteUrl } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const dict = getDictionary(locale);
   return {
-    metadataBase: new URL(siteUrl),
+    metadataBase: new URL(siteUrl()),
     title: { default: dict.meta.siteName, template: `%s · ${dict.meta.shortName}` },
     description: dict.meta.description,
     alternates: {
